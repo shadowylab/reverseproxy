@@ -8,6 +8,14 @@
 git clone https://gitlab.com/pskishimoto/reverseproxy.git
 ```
 
+2. Install dependencies
+
+* Ubuntu & Debian
+
+```
+sudo apt install libssl-dev make pkg-config
+```
+
 2. Install Rust (skip if you already have Rust installed)
 
 ```

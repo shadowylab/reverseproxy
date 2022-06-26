@@ -25,8 +25,8 @@ build:
 	$(Q)cargo build $(GENERAL_ARGS)
 
 install:
-	$(Q)sudo cp ./target/release/TBD /usr/local/bin
-	$(Q)chmod a+x /usr/local/bin/TBD
+	$(Q)sudo cp ./target/release/reverseproxy /usr/local/bin
+	$(Q)chmod a+x /usr/local/bin/reverseproxy
 
 rust:
 	$(Q)curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
