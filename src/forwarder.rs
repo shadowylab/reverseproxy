@@ -124,9 +124,7 @@ impl ReverseProxy {
 
         // copy headers
         for (key, value) in forward_res.headers() {
-            if !HOP_BY_HOP_HEADERS.contains(key)
-                && key != HeaderName::from_lowercase(b"connection").unwrap()
-            {
+            if !HOP_BY_HOP_HEADERS.contains(key) {
                 back_res.append_header((key.clone(), value.clone()));
             }
         }
