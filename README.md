@@ -5,7 +5,7 @@
 1. Download the source code
 
 ```
-git clone https://gitlab.com/pskishimoto/reverseproxy.git
+git clone https://gitlab.com/p2kishimoto/reverseproxy.git
 ```
 
 2. Install dependencies
@@ -39,7 +39,7 @@ sudo make install
 * Forward to Tor hidden service (.onion) using socks5 proxy
 
 ```
-torproxy --server 127.0.0.1:8080 --forward http://torhiddenservice.onion --proxy socks5h://127.0.0.1:9050
+reverseproxy --server 127.0.0.1:8080 --forward http://torhiddenservice.onion --proxy socks5h://127.0.0.1:9050
 ```
 
 ## License
