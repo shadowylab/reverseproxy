@@ -1,4 +1,4 @@
-# HTTP/1.x Reverse Proxy written in Rust
+# TCP Reverse Proxy written in Rust
 
 ## Install 
 
@@ -36,10 +36,16 @@ sudo make install
 
 ## Usage
 
-* Forward to Tor hidden service (.onion) using socks5 proxy
+* Forward to Tor hidden service (.onion) using `default` socks5 proxy
 
 ```
-reverseproxy --server 127.0.0.1:8080 --forward http://torhiddenservice.onion --proxy socks5h://127.0.0.1:9050
+reverseproxy --server 127.0.0.1:8080 --forward torhiddenservice.onion:80 --use-tor
+```
+
+* Forward to Tor hidden service (.onion) using `custom` socks5 proxy
+
+```
+reverseproxy --server 127.0.0.1:8080 --forward torhiddenservice.onion:80 --socks5-proxy 127.0.0.1:9050
 ```
 
 ## License
