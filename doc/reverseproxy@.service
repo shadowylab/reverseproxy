@@ -1,0 +1,10 @@
+[Unit]
+Description=HTTP/1.x Reverse Proxy
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/reverseproxy/%i.conf
+ExecStart=/usr/local/bin/reverseproxy --server ${REVERSEPROXY_SERVER} --forward ${REVERSEPROXY_FORWARD} --proxy ${REVERSEPROXY_PROXY} --timeout ${REVERSEPROXY_TIMEOUT}
+
+[Install]
+WantedBy=multi-user.target
