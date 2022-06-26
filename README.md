@@ -23,7 +23,7 @@ make
 4. Install (copy binary file to `/usr/local/bin`)
 
 ```
-make install
+sudo make install
 ```
 
 ## Usage
