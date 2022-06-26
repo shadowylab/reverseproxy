@@ -65,7 +65,7 @@ impl ReverseProxy {
     fn x_forwarded_for_value(&self, req: &HttpRequest) -> String {
         let mut result = String::new();
 
-        for (key, value) in req.headers() {
+        for (key, value) in req.headers().iter() {
             if key == *HEADER_X_FORWARDED_FOR {
                 result.push_str(value.to_str().unwrap());
                 break;
@@ -117,20 +117,33 @@ impl ReverseProxy {
             .timeout(self.timeout);
 
         log::debug!("Getting forward response...");
-        let forward_res: Response = forward_req.send().await.unwrap();
+        let forward_res: Response = match forward_req.send().await {
+            Ok(forward_res) => forward_res,
+            Err(err) => {
+                log::error!("Error getting response: {}", err);
+                return HttpResponse::InternalServerError().finish();
+            }
+        };
 
         log::debug!("Building client response...");
         let mut back_res: HttpResponseBuilder = HttpResponse::build(forward_res.status());
 
-        // copy headers
-        for (key, value) in forward_res.headers() {
+        for (key, value) in forward_res.headers().iter() {
             if !HOP_BY_HOP_HEADERS.contains(key) {
                 back_res.append_header((key.clone(), value.clone()));
             }
         }
 
+        let forward_res_body: Bytes = match forward_res.bytes().await {
+            Ok(body) => body,
+            Err(err) => {
+                log::error!("Error getting response body: {}", err);
+                return HttpResponse::InternalServerError().finish();
+            }
+        };
+
         log::info!("New request forwarded to {}", forward_uri);
-        back_res.body(forward_res.bytes().await.unwrap())
+        back_res.body(forward_res_body)
     }
 }
 
@@ -153,19 +166,17 @@ fn remove_connection_headers(headers: &mut HeaderMap) {
     let mut headers_to_delete: Vec<String> = Vec::new();
     let header_connection = &(*HEADER_CONNECTION);
 
-    if headers.contains_key(header_connection) {
-        if let Some(connection_header_value) = headers.get(header_connection) {
-            if let Ok(connection_header_value) = connection_header_value.to_str() {
-                for h in connection_header_value.split(',').map(|s| s.trim()) {
-                    headers_to_delete.push(String::from(h));
-                }
+    if let Some(connection_header_value) = headers.get(header_connection) {
+        if let Ok(connection_header_value) = connection_header_value.to_str() {
+            for h in connection_header_value.split(',').map(|s| s.trim()) {
+                headers_to_delete.push(String::from(h));
             }
         }
     }
 
-    for h in headers_to_delete {
+    headers_to_delete.into_iter().for_each(|h| {
         headers.remove(h);
-    }
+    });
 }
 
 fn remove_request_hop_by_hop_headers(headers: &mut HeaderMap) {
