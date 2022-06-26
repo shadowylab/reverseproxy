@@ -1,0 +1,17 @@
+[package]
+name = "reverseproxy"
+version = "0.1.0"
+edition = "2021"
+description = "HTTP/1.x Reverse Proxy written in Rust"
+authors = ["Yuki Kishimoto <yukikishimoto@proton.me>"]
+license = "MIT"
+repository = "https://gitlab.com/p2kishimoto/reverseproxy"
+readme = "README.md"
+
+[dependencies]
+actix-web = "4.1.0"
+clap = { version = "3.2.6", features = ["derive"]}
+env_logger = "0.9.0"
+lazy_static = "1.4.0"
+log = "0.4.14"
+reqwest = { version = "0.11.9", features = ["socks"] }
