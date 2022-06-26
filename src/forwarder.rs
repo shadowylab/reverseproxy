@@ -129,8 +129,8 @@ impl ReverseProxy {
         let mut back_res: HttpResponseBuilder = HttpResponse::build(forward_res.status());
 
         for (key, value) in forward_res.headers().iter() {
-            if !HOP_BY_HOP_HEADERS.contains(key) {
-                back_res.append_header((key.clone(), value.clone()));
+            if !HOP_BY_HOP_HEADERS.contains(key) && key != &(*HEADER_CONNECTION) {
+                back_res.append_header((key, value));
             }
         }
 
