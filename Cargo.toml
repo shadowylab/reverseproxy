@@ -1,17 +1,19 @@
 [package]
 name = "reverseproxy"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
-description = "HTTP/1.x Reverse Proxy written in Rust"
+description = "TCP Reverse Proxy written in Rust"
 authors = ["Yuki Kishimoto <yukikishimoto@proton.me>"]
 license = "MIT"
 repository = "https://gitlab.com/p2kishimoto/reverseproxy"
 readme = "README.md"
 
 [dependencies]
-actix-web = "4.1.0"
+anyhow = "1.0.58"
 clap = { version = "3.2.6", features = ["derive"]}
 env_logger = "0.9.0"
+futures = "0.3.21"
 lazy_static = "1.4.0"
 log = "0.4.14"
-reqwest = { version = "0.11.11", features = ["socks"] }
+tokio = { version = "1.19.2", features = ["full"] }
+tokio-socks = "0.5.1"

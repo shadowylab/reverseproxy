@@ -4,10 +4,11 @@
 #[macro_use]
 extern crate lazy_static;
 
+use anyhow::Result;
+
 mod config;
-mod forwarder;
 mod logger;
-mod server;
+mod tcp;
 
 use config::{Args, Parser};
 use logger::Logger;
@@ -16,9 +17,9 @@ lazy_static! {
     pub static ref CONFIG: Args = Args::parse();
 }
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     Logger::init();
 
-    server::run().await
+    tcp::run().await
 }
