@@ -83,29 +83,29 @@ impl ReverseProxy {
     }
 
     fn forward_uri(&self, req: &HttpRequest) -> String {
-        let forward_uri = match req.uri().query() {
+        match req.uri().query() {
             Some(query) => format!("{}{}?{}", self.forward_url, req.uri().path(), query),
             None => format!("{}{}", self.forward_url, req.uri().path()),
-        };
+        }
+    }
 
-        forward_uri
+    fn forward_headers(&self, req: &HttpRequest) -> HeaderMap {
+        let mut headers = HeaderMap::new();
+
+        req.headers().iter().for_each(|(name, value)| {
+            headers.insert(name, value.clone());
+        });
+
+        remove_connection_headers(&mut headers);
+        remove_request_hop_by_hop_headers(&mut headers);
+
+        headers
     }
 
     pub async fn forward(&self, req: HttpRequest, body: Bytes) -> HttpResponse {
         let forward_uri: String = self.forward_uri(&req);
         let forward_method: Method = req.method().clone();
-        let mut forward_headers = HeaderMap::new();
-
-        log::info!("Forward uri: {}", forward_uri);
-
-        req.headers().iter().for_each(|(name, value)| {
-            forward_headers.insert(name, value.clone());
-        });
-
-        log::debug!("Removing connection header...");
-        remove_connection_headers(&mut forward_headers);
-        log::debug!("Removing request hop by hop");
-        remove_request_hop_by_hop_headers(&mut forward_headers);
+        let forward_headers = self.forward_headers(&req);
 
         log::debug!("Building forward request");
         let forward_req: RequestBuilder = self
@@ -124,12 +124,14 @@ impl ReverseProxy {
 
         // copy headers
         for (key, value) in forward_res.headers() {
-            if !HOP_BY_HOP_HEADERS.contains(key) {
+            if !HOP_BY_HOP_HEADERS.contains(key)
+                && key != HeaderName::from_lowercase(b"connection").unwrap()
+            {
                 back_res.append_header((key.clone(), value.clone()));
             }
         }
 
-        log::info!("Sending response to client");
+        log::info!("New request forwarded to {}", forward_uri);
         back_res.body(forward_res.bytes().await.unwrap())
     }
 }
