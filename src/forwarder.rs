@@ -120,7 +120,7 @@ impl ReverseProxy {
         let forward_res: Response = match forward_req.send().await {
             Ok(forward_res) => forward_res,
             Err(err) => {
-                log::error!("Error getting response: {}", err);
+                log::error!("{}", err);
                 return HttpResponse::InternalServerError().finish();
             }
         };
@@ -155,7 +155,7 @@ impl From<reqwest::Error> for Error {
 
 fn add_client_ip(fwd_header_value: &mut String, client_addr: SocketAddr) {
     if !fwd_header_value.is_empty() {
-        fwd_header_value.push_str(", ");
+        fwd_header_value.push(',');
     }
 
     let client_ip_str = &format!("{}", client_addr.ip());
