@@ -2,37 +2,7 @@
 
 ## Install 
 
-1. Download the source code
-
-```
-git clone https://gitlab.com/p2kishimoto/reverseproxy.git
-```
-
-2. Install dependencies
-
-* Ubuntu & Debian
-
-```
-sudo apt install libssl-dev make pkg-config
-```
-
-2. Install Rust (skip if you already have Rust installed)
-
-```
-make rust
-```
-
-3. Compile source code
-
-```
-make
-```
-
-4. Install (copy binary file to `/usr/local/bin`)
-
-```
-sudo make install
-```
+* [Build from source](doc/build.md) 
 
 ## Usage
 
