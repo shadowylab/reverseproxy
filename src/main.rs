@@ -9,6 +9,7 @@ use anyhow::Result;
 mod config;
 mod logger;
 mod tcp;
+mod util;
 
 use config::{Args, Parser};
 use logger::Logger;
