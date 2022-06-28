@@ -8,16 +8,16 @@ pub use clap::{ArgAction, Parser};
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 pub struct Args {
-    /// Local server address and port
-    #[clap(long("server"))]
-    pub server: SocketAddr,
-    /// Address to forward traffic (ex. torhiddenservice.onion:80)
-    #[clap(long("forward"))]
-    pub forward: String,
-    /// Use Tor default Socks5 proxy
-    #[clap(long("use-tor"), action = ArgAction::SetTrue)]
-    pub use_tor: bool,
+    /// Local address and port (ex. 127.0.0.1:8080)
+    #[clap(name("LOCAL_ADDR"))]
+    pub local_addr: SocketAddr,
+    /// Address and port to forward traffic (ex. torhiddenservice.onion:80)
+    #[clap(name("FORWARD_ADDR"))]
+    pub forward_addr: String,
     /// Socks5 proxy (ex. 127.0.0.1:9050)
     #[clap(long("socks5-proxy"))]
     pub socks5_proxy: Option<SocketAddr>,
+    /// Use embedded Tor client
+    #[clap(long("use-tor"), action = ArgAction::SetTrue)]
+    pub use_tor: bool,
 }

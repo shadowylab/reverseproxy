@@ -15,7 +15,6 @@ impl TpcSocks5Stream {
         proxy: SocketAddr,
         dest: impl IntoTargetAddr<'a>,
     ) -> Result<TcpStream> {
-        let sock = Socks5Stream::connect(proxy, dest).await?;
-        Ok(sock.into_inner())
+        Ok(Socks5Stream::connect(proxy, dest).await?.into_inner())
     }
 }

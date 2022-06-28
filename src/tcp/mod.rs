@@ -1,7 +1,8 @@
 // Copyright (c) 2022 Yuki Kishimoto
 // Distributed under the MIT software license
 
-use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
+use std::net::SocketAddr;
+use std::sync::Arc;
 
 use anyhow::Result;
 use futures::FutureExt;
@@ -12,65 +13,81 @@ mod socks;
 
 use socks::TpcSocks5Stream;
 
-use crate::{util::random_id, CONFIG};
+use crate::util::random_id;
 
-lazy_static! {
-    pub static ref DEFAULT_TOR_SOCKS5_ADDR: SocketAddr =
-        SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::LOCALHOST, 9050));
+pub struct TcpReverseProxy {
+    local_addr: SocketAddr,
+    forward_addr: String,
+    socks5_proxy: Option<SocketAddr>,
+    use_tor: bool,
 }
 
-pub async fn run() -> Result<()> {
-    let listener = TcpListener::bind(CONFIG.server).await?;
-
-    log::info!("Listening on {}", CONFIG.server);
-
-    while let Ok((inbound, _)) = listener.accept().await {
-        let transfer = transfer(inbound).map(|r| {
-            if let Err(err) = r {
-                log::error!("Transfer failed: {}", err);
-            }
-        });
-
-        tokio::spawn(transfer);
+impl TcpReverseProxy {
+    pub fn new(
+        local_addr: SocketAddr,
+        forward_addr: String,
+        socks5_proxy: Option<SocketAddr>,
+        use_tor: bool,
+    ) -> Arc<Self> {
+        Arc::new(Self {
+            local_addr,
+            forward_addr,
+            socks5_proxy,
+            use_tor,
+        })
     }
 
-    Ok(())
-}
+    pub async fn run(self: Arc<Self>) -> Result<()> {
+        let listener = TcpListener::bind(self.local_addr).await?;
 
-async fn connect() -> Result<TcpStream> {
-    if CONFIG.use_tor {
-        TpcSocks5Stream::connect(*DEFAULT_TOR_SOCKS5_ADDR, CONFIG.forward.clone()).await
-    } else if let Some(proxy) = CONFIG.socks5_proxy {
-        TpcSocks5Stream::connect(proxy, CONFIG.forward.clone()).await
-    } else {
-        Ok(TcpStream::connect(CONFIG.forward.clone()).await?)
+        log::info!("Listening on {}", self.local_addr);
+
+        while let Ok((inbound, _)) = listener.accept().await {
+            let transfer = self.clone().transfer(inbound).map(|r| {
+                if let Err(err) = r {
+                    log::error!("Transfer failed: {}", err);
+                }
+            });
+
+            tokio::spawn(transfer);
+        }
+
+        Ok(())
     }
-}
 
-async fn transfer(inbound: TcpStream) -> Result<()> {
-    let connection_id: String = random_id();
+    async fn connect(self: Arc<Self>) -> Result<TcpStream> {
+        if let Some(proxy) = self.socks5_proxy {
+            TpcSocks5Stream::connect(proxy, self.forward_addr.as_str()).await
+        } else {
+            Ok(TcpStream::connect(self.forward_addr.as_str()).await?)
+        }
+    }
 
-    log::debug!("Connecting to {}", CONFIG.forward);
+    async fn transfer(self: Arc<Self>, inbound: TcpStream) -> Result<()> {
+        let connection_id: String = random_id();
 
-    let outbound: TcpStream = connect().await?;
+        log::debug!("Connecting to {}", self.forward_addr);
 
-    log::info!("Connection {} enstablished", connection_id);
+        let outbound: TcpStream = self.connect().await?;
 
-    let (mut ri, mut wi) = split(inbound);
-    let (mut ro, mut wo) = split(outbound);
+        log::info!("Connection {} enstablished", connection_id);
 
-    let client_to_server = async {
-        copy(&mut ri, &mut wo).await?;
-        wo.shutdown().await
-    };
+        let (mut ri, mut wi) = split(inbound);
+        let (mut ro, mut wo) = split(outbound);
 
-    let server_to_client = async {
-        copy(&mut ro, &mut wi).await?;
-        wi.shutdown().await
-    };
+        let client_to_server = async {
+            copy(&mut ri, &mut wo).await?;
+            wo.shutdown().await
+        };
 
-    tokio::try_join!(client_to_server, server_to_client)?;
+        let server_to_client = async {
+            copy(&mut ro, &mut wi).await?;
+            wi.shutdown().await
+        };
 
-    log::info!("Connection {} closed", connection_id);
-    Ok(())
+        tokio::try_join!(client_to_server, server_to_client)?;
+
+        log::info!("Connection {} closed", connection_id);
+        Ok(())
+    }
 }

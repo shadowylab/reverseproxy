@@ -1,9 +1,6 @@
 // Copyright (c) 2022 Yuki Kishimoto
 // Distributed under the MIT software license
 
-#[macro_use]
-extern crate lazy_static;
-
 use anyhow::Result;
 
 mod config;
@@ -13,14 +10,19 @@ mod util;
 
 use config::{Args, Parser};
 use logger::Logger;
-
-lazy_static! {
-    pub static ref CONFIG: Args = Args::parse();
-}
+use tcp::TcpReverseProxy;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let args: Args = Args::parse();
     Logger::init();
 
-    tcp::run().await
+    TcpReverseProxy::new(
+        args.local_addr,
+        args.forward_addr,
+        args.socks5_proxy,
+        args.use_tor,
+    )
+    .run()
+    .await
 }
