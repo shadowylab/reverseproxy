@@ -20,6 +20,4 @@ pub struct Args {
     /// Socks5 proxy (ex. 127.0.0.1:9050)
     #[clap(long("socks5-proxy"))]
     pub socks5_proxy: Option<SocketAddr>,
-    #[clap(long("domain"))]
-    pub domain: Option<String>,
 }
