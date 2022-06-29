@@ -1,0 +1,10 @@
+[package]
+name = "reverseproxy-tor"
+version = "1.0.0"
+edition = "2021"
+authors = ["Yuki Kishimoto <yukikishimoto@proton.me>"]
+license = "MIT"
+
+[dependencies]
+libtor = { version = "47.8.0+0.4.7.x", features=["vendored-openssl"] }
+log = "0.4.14"

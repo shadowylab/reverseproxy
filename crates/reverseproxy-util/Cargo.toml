@@ -1,0 +1,9 @@
+[package]
+name = "reverseproxy-util"
+version = "1.0.0"
+edition = "2021"
+authors = ["Yuki Kishimoto <yukikishimoto@proton.me>"]
+license = "MIT"
+
+[dependencies]
+rand = "0.8.5"

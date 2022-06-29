@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use futures::FutureExt;
+use reverseproxy_util::random_id;
 use tokio::io::{copy, split, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 
@@ -13,13 +14,10 @@ mod socks;
 
 use socks::TpcSocks5Stream;
 
-use crate::util::random_id;
-
 pub struct TcpReverseProxy {
     local_addr: SocketAddr,
     forward_addr: String,
     socks5_proxy: Option<SocketAddr>,
-    use_tor: bool,
 }
 
 impl TcpReverseProxy {
@@ -27,13 +25,11 @@ impl TcpReverseProxy {
         local_addr: SocketAddr,
         forward_addr: String,
         socks5_proxy: Option<SocketAddr>,
-        use_tor: bool,
     ) -> Arc<Self> {
         Arc::new(Self {
             local_addr,
             forward_addr,
             socks5_proxy,
-            use_tor,
         })
     }
 
@@ -46,6 +42,10 @@ impl TcpReverseProxy {
             let transfer = self.clone().transfer(inbound).map(|r| {
                 if let Err(err) = r {
                     log::error!("Transfer failed: {}", err);
+
+                    if err.to_string().to_lowercase().contains("ttl") {
+                        std::process::exit(0x1);
+                    }
                 }
             });
 

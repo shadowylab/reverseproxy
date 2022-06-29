@@ -5,7 +5,7 @@ use std::net::SocketAddr;
 
 pub use clap::{ArgAction, Parser};
 
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Clone)]
 #[clap(author, version, about, long_about = None)]
 pub struct Args {
     /// Local address and port (ex. 127.0.0.1:8080)

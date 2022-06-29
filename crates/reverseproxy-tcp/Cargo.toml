@@ -1,0 +1,14 @@
+[package]
+name = "reverseproxy-tcp"
+version = "1.0.0"
+edition = "2021"
+authors = ["Yuki Kishimoto <yukikishimoto@proton.me>"]
+license = "MIT"
+
+[dependencies]
+anyhow = "1.0.58"
+futures = "0.3.21"
+log = "0.4.14"
+reverseproxy-util = { path = "../reverseproxy-util" }
+tokio = { version = "1.19.2", features = ["full"] }
+tokio-socks = "0.5.1"
