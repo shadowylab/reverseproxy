@@ -8,17 +8,25 @@
 
 Does NOT support TLS yet!
 
-* Forward to Tor hidden service (.onion) using socks5 proxy
+* Forward from local address to Tor hidden service (.onion) using socks5 proxy
 
 ```
-reverseproxy --server 127.0.0.1:8080 --forward torhiddenservice.onion:80 --socks5-proxy 127.0.0.1:9050
+reverseproxy 127.0.0.1:8080 torhiddenservice.onion:80 --socks5-proxy 127.0.0.1:9050
 ```
 
-* Forward to local network address
+* Forward from local address to Tor hidden service (.onion) using embedded Tor client
 
 ```
-reverseproxy --server 127.0.0.1:8080 --forward othercomputer.local:80 
+reverseproxy 127.0.0.1:8080 torhiddenservice.onion:80 --use-tor
 ```
+
+* Forward from local address to local network address
+
+```
+reverseproxy 127.0.0.1:8080 othercomputer.local:80 
+```
+
+To get more info use `reverseproxy --help`
 
 ## License
 
