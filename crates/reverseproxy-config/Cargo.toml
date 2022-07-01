@@ -5,5 +5,9 @@ edition = "2021"
 authors = ["Yuki Kishimoto <yukikishimoto@proton.me>"]
 license = "MIT"
 
+[features]
+default = ["tor"]
+tor = []
+
 [dependencies]
 clap = { version = "3.2.6", features = ["derive"]}

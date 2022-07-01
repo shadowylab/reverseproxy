@@ -9,11 +9,15 @@ homepage = "https://gitlab.com/p2kishimoto/reverseproxy"
 repository = "https://gitlab.com/p2kishimoto/reverseproxy.git"
 readme = "README.md"
 
+[features]
+default = ["tor"]
+tor = ["reverseproxy-tor"]
+
 [dependencies]
 anyhow = "1.0.58"
 log = "0.4.14"
 reverseproxy-config = { path = "../reverseproxy-config" }
 reverseproxy-logger = { path = "../reverseproxy-logger" }
 reverseproxy-tcp = { path = "../reverseproxy-tcp" }
-reverseproxy-tor = { path = "../reverseproxy-tor" }
+reverseproxy-tor = { path = "../reverseproxy-tor", optional = true }
 tokio = "1.19.2"

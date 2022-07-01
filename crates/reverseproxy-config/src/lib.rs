@@ -18,6 +18,7 @@ pub struct Args {
     #[clap(long("socks5-proxy"))]
     pub socks5_proxy: Option<SocketAddr>,
     /// Use embedded Tor client
+    #[cfg(feature = "tor")]
     #[clap(long("use-tor"), action = ArgAction::SetTrue)]
     pub use_tor: bool,
 }
