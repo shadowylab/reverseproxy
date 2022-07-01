@@ -14,7 +14,7 @@ Does NOT support TLS yet!
 reverseproxy 127.0.0.1:8080 torhiddenservice.onion:80 --socks5-proxy 127.0.0.1:9050
 ```
 
-* Forward from local address to Tor hidden service (.onion) using embedded Tor client
+* Forward from local address to Tor hidden service (.onion) using embedded Tor client (feature in alpha stage)
 
 ```
 reverseproxy 127.0.0.1:8080 torhiddenservice.onion:80 --use-tor
