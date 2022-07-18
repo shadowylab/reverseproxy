@@ -43,7 +43,8 @@ impl TcpReverseProxy {
                 if let Err(err) = r {
                     log::error!("Transfer failed: {}", err);
 
-                    if err.to_string().to_lowercase().contains("ttl") {
+                    use tokio_socks::Error;
+                    if let Some(Error::TtlExpired) = err.downcast_ref::<Error>() {
                         std::process::exit(0x1);
                     }
                 }
