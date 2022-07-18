@@ -31,7 +31,7 @@ sudo make install
 ### Ubuntu & Debian
 
 ```
-sudo apt install build-essential libssl-dev make pkg-config automake autoconf
+sudo apt install build-essential libssl-dev make pkg-config automake autoconf libtool
 ```
 
 ### Fedora
@@ -41,7 +41,7 @@ sudo dnf group install "C Development Tools and Libraries" "Development Tools"
 ```
 
 ```
-sudo dnf install make openssl-devel automake autoconf
+sudo dnf install make openssl-devel automake autoconf libtool
 ```
 
 ### MacOS
