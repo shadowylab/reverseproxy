@@ -1,7 +1,9 @@
-# Compiler configuration
-GENERAL_ARGS = --release
-
-DEFAULT = build
+# Use 'DEBUG=1' to build debug binary'.
+ifdef DEBUG
+  RELEASE := 
+else
+  RELEASE := --release
+endif
 
 # Use 'VERBOSE=1' to echo all commands, for example 'make help VERBOSE=1'.
 ifdef VERBOSE
@@ -10,7 +12,7 @@ else
   Q := @
 endif
 
-all: $(DEFAULT)
+all: build
 
 help:
 	$(Q)echo ""
@@ -22,7 +24,7 @@ help:
 	$(Q)echo ""
 
 build:
-	$(Q)cargo build $(GENERAL_ARGS)
+	$(Q)cargo build $(RELEASE)
 
 install:
 	$(Q)sudo cp ./target/release/reverseproxy /usr/local/bin
