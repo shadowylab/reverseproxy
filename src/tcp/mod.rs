@@ -6,13 +6,13 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use futures::FutureExt;
-use reverseproxy_util::random_id;
 use tokio::io::{copy, split, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 
 mod socks;
 
-use socks::TpcSocks5Stream;
+use self::socks::TpcSocks5Stream;
+use crate::util::random_id;
 
 pub struct TcpReverseProxy {
     local_addr: SocketAddr,

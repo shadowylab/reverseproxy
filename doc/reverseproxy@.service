@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 EnvironmentFile=/etc/reverseproxy/%i.conf
-ExecStart=/usr/local/bin/reverseproxy --server ${REVERSE_PROXY_SERVER} --forward ${REVERSE_PROXY_FORWARD} --use-tor
+ExecStart=/usr/local/bin/reverseproxy ${REVERSE_PROXY_SERVER} ${REVERSE_PROXY_FORWARD} --socks5-proxy 127.0.0.1:9050
 Type=simple
 KillMode=process
 Restart=always
