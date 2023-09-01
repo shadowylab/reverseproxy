@@ -3,10 +3,11 @@
 
 use std::net::SocketAddr;
 
-use anyhow::Result;
 use tokio::net::TcpStream;
 use tokio_socks::tcp::Socks5Stream;
 use tokio_socks::IntoTargetAddr;
+
+use crate::Result;
 
 pub struct TpcSocks5Stream;
 

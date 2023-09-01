@@ -18,8 +18,10 @@ use self::tcp::TcpReverseProxy;
 #[cfg(feature = "tor")]
 use self::tor::Tor;
 
+type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
+
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<()> {
     let args: Args = Args::parse();
     Logger::init();
 
