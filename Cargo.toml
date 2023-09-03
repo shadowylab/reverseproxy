@@ -19,7 +19,6 @@ clap = { version = "4.4", features = ["derive"] }
 env_logger = "0.10"
 futures = "0.3"
 log = "0.4"
-rand = "0.8"
 tokio = { version = "1.32", features = ["macros", "net", "rt-multi-thread"] }
 tokio-socks = "0.5"
 tor-rtcompat = { version = "0.9", optional = true }

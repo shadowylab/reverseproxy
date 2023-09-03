@@ -4,7 +4,6 @@
 mod config;
 mod logger;
 mod tcp;
-mod util;
 
 use self::config::{Args, Parser};
 use self::logger::Logger;
