@@ -31,7 +31,7 @@ sudo make install
 ### Ubuntu & Debian
 
 ```
-sudo apt install build-essential libssl-dev make pkg-config automake autoconf libtool
+sudo apt install build-essential libssl-dev make pkg-config automake autoconf libtool libsqlite-dev
 ```
 
 ### Fedora

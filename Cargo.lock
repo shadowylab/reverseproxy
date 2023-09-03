@@ -2056,7 +2056,7 @@ checksum = "0b21382040b2a7a89a66f856692f7fa2f47f4a93a08d7db229d235c1e6f03339"
 
 [[package]]
 name = "reverseproxy"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "arti-client",
  "clap",
