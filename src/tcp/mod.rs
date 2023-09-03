@@ -120,13 +120,13 @@ impl TcpReverseProxy {
     pub async fn run(self) -> Result<()> {
         let listener = TcpListener::bind(self.local_addr).await?;
 
-        log::info!("Listening on {}", self.local_addr);
+        tracing::info!("Listening on {}", self.local_addr);
 
         let this = Arc::new(self);
         while let Ok((inbound, _)) = listener.accept().await {
             let transfer = this.clone().transfer(inbound).map(|r| {
                 if let Err(err) = r {
-                    log::error!("Transfer failed: {}", err);
+                    tracing::error!("Transfer failed: {}", err);
 
                     use tokio_socks::Error;
                     if let Some(Error::TtlExpired) = err.downcast_ref::<Error>() {
@@ -162,11 +162,11 @@ impl TcpReverseProxy {
     async fn transfer(self: Arc<Self>, inbound: TcpStream) -> Result<()> {
         let connection_id: usize = self.counter.fetch_add(1, Ordering::SeqCst);
 
-        log::debug!("Connecting to {}", self.forward_addr);
+        tracing::debug!("Connecting to {}", self.forward_addr);
 
         let outbound: Connection = self.connect().await?;
 
-        log::info!("Connection #{connection_id} enstablished");
+        tracing::info!("Connection #{connection_id} enstablished");
 
         let (mut ri, mut wi) = split(inbound);
         let (mut ro, mut wo) = split(outbound);
@@ -183,7 +183,8 @@ impl TcpReverseProxy {
 
         tokio::try_join!(client_to_server, server_to_client)?;
 
-        log::info!("Connection #{connection_id} closed");
+        tracing::info!("Connection #{connection_id} closed");
+
         Ok(())
     }
 }

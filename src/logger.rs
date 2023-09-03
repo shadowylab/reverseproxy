@@ -1,21 +1,21 @@
 // Copyright (c) 2022-2023 Yuki Kishimoto
 // Distributed under the MIT software license
 
-use env_logger::{Builder, Env};
-use log::Level;
+use tracing::Level;
 
 pub struct Logger;
 
-const DEFAULT_LOG_LEVEL: Level = Level::Info;
-
 impl Logger {
     pub fn init() {
-        let log_level: Level = if cfg!(debug_assertions) {
-            Level::Debug
+        let level: Level = if cfg!(debug_assertions) {
+            Level::DEBUG
         } else {
-            DEFAULT_LOG_LEVEL
+            Level::INFO
         };
 
-        Builder::from_env(Env::default().default_filter_or(log_level.as_str())).init();
+        let subscriber = tracing_subscriber::FmtSubscriber::builder()
+            .with_max_level(level)
+            .finish();
+        tracing::subscriber::set_global_default(subscriber).unwrap();
     }
 }

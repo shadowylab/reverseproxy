@@ -22,9 +22,11 @@ async fn main() -> Result<()> {
 
     #[cfg(feature = "tor")]
     if args.use_tor {
+        tracing::info!("Bootstraping embedded Tor client...");
         let config = TorClientConfig::default();
         let tor_client = TorClient::create_bootstrapped(config).await?;
         reverse_proxy = reverse_proxy.tor(tor_client);
+        tracing::info!("Bootstrap completed");
     }
 
     reverse_proxy.socks5_proxy(args.socks5_proxy).run().await
