@@ -8,7 +8,9 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::task::{Context, Poll};
 
+#[cfg(feature = "tor")]
 use arti_client::config::BoolOrAuto;
+#[cfg(feature = "tor")]
 use arti_client::StreamPrefs;
 #[cfg(feature = "tor")]
 use arti_client::{DataStream, TorClient};
@@ -37,6 +39,7 @@ impl AsyncRead for Connection {
     ) -> Poll<io::Result<()>> {
         match self.get_mut() {
             Self::TcpStream(stream) => AsyncRead::poll_read(Pin::new(stream), cx, buf),
+            #[cfg(feature = "tor")]
             Self::DataStream(stream) => AsyncRead::poll_read(Pin::new(stream), cx, buf),
         }
     }
@@ -50,6 +53,7 @@ impl AsyncWrite for Connection {
     ) -> Poll<io::Result<usize>> {
         match self.get_mut() {
             Self::TcpStream(stream) => AsyncWrite::poll_write(Pin::new(stream), cx, buf),
+            #[cfg(feature = "tor")]
             Self::DataStream(stream) => AsyncWrite::poll_write(Pin::new(stream), cx, buf),
         }
     }
@@ -57,6 +61,7 @@ impl AsyncWrite for Connection {
     fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         match self.get_mut() {
             Self::TcpStream(stream) => AsyncWrite::poll_flush(Pin::new(stream), cx),
+            #[cfg(feature = "tor")]
             Self::DataStream(stream) => AsyncWrite::poll_flush(Pin::new(stream), cx),
         }
     }
@@ -64,6 +69,7 @@ impl AsyncWrite for Connection {
     fn poll_shutdown(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         match self.get_mut() {
             Self::TcpStream(stream) => AsyncWrite::poll_shutdown(Pin::new(stream), cx),
+            #[cfg(feature = "tor")]
             Self::DataStream(stream) => AsyncWrite::poll_shutdown(Pin::new(stream), cx),
         }
     }
@@ -75,6 +81,7 @@ impl From<TcpStream> for Connection {
     }
 }
 
+#[cfg(feature = "tor")]
 impl From<DataStream> for Connection {
     fn from(stream: DataStream) -> Self {
         Self::DataStream(stream)
@@ -142,16 +149,19 @@ impl TcpReverseProxy {
     }
 
     async fn connect(self: Arc<Self>) -> Result<Connection> {
-        if let Some(proxy) = self.socks5_proxy {
-            Ok(TpcSocks5Stream::connect(proxy, self.forward_addr.as_str())
-                .await?
-                .into())
-        } else if let Some(tor) = &self.tor {
+        #[cfg(feature = "tor")]
+        if let Some(tor) = &self.tor {
             let mut prefs = StreamPrefs::default();
             prefs.connect_to_onion_services(BoolOrAuto::Explicit(true));
 
-            Ok(tor
+            return Ok(tor
                 .connect_with_prefs(self.forward_addr.as_str(), &prefs)
+                .await?
+                .into());
+        }
+
+        if let Some(proxy) = self.socks5_proxy {
+            Ok(TpcSocks5Stream::connect(proxy, self.forward_addr.as_str())
                 .await?
                 .into())
         } else {

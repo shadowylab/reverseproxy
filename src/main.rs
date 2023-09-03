@@ -8,6 +8,7 @@ mod tcp;
 use self::config::{Args, Parser};
 use self::logger::Logger;
 use self::tcp::TcpReverseProxy;
+#[cfg(feature = "tor")]
 use arti_client::{TorClient, TorClientConfig};
 
 type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
@@ -18,6 +19,7 @@ async fn main() -> Result<()> {
 
     let args: Args = Args::parse();
 
+    #[allow(unused_mut)]
     let mut reverse_proxy = TcpReverseProxy::new(args.local_addr, args.forward_addr);
 
     #[cfg(feature = "tor")]
