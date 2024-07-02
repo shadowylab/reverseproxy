@@ -176,7 +176,7 @@ impl TcpReverseProxy {
 
         let outbound: Connection = self.connect().await?;
 
-        tracing::info!("Connection #{connection_id} enstablished");
+        tracing::info!("Connection #{connection_id} established");
 
         let (mut ri, mut wi) = split(inbound);
         let (mut ro, mut wo) = split(outbound);
