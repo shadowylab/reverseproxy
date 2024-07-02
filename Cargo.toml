@@ -14,12 +14,12 @@ default = ["tor"]
 tor = ["dep:arti-client", "dep:tor-rtcompat"]
 
 [dependencies]
-arti-client = { version = "0.10", default-features = false, features = ["tokio", "onion-service-client", "rustls", "compression"], optional = true }
+arti-client = { version = "0.20", features = ["onion-service-client", "tokio"], optional = true }
 clap = { version = "4.4", features = ["derive"] }
 futures = "0.3"
 tokio = { version = "1.32", features = ["macros", "net", "rt-multi-thread"] }
 tokio-socks = "0.5"
-tor-rtcompat = { version = "0.9", optional = true }
+tor-rtcompat = { version = "0.20", optional = true }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 
