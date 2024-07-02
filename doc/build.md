@@ -3,7 +3,7 @@
 ## Download source code
 
 ```
-git clone https://github.com/yukibtc/reverseproxy.git && cd reverseproxy
+git clone https://github.com/shadowylab/reverseproxy.git && cd reverseproxy
 ```
 
 ## Verify commits
