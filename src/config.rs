@@ -3,7 +3,9 @@
 
 use std::net::SocketAddr;
 
-pub use clap::{ArgAction, Parser};
+#[cfg(feature = "tor")]
+use clap::ArgAction;
+pub use clap::Parser;
 
 #[derive(Parser, Debug, Clone)]
 #[clap(author, version, about, long_about = None)]
@@ -19,6 +21,6 @@ pub struct Args {
     pub socks5_proxy: Option<SocketAddr>,
     /// Use embedded Tor client
     #[cfg(feature = "tor")]
-    #[clap(long("use-tor"), action = ArgAction::SetTrue)]
-    pub use_tor: bool,
+    #[clap(long("tor"), action = ArgAction::SetTrue)]
+    pub tor: bool,
 }

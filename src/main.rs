@@ -23,7 +23,7 @@ async fn main() -> Result<()> {
     let mut reverse_proxy = TcpReverseProxy::new(args.local_addr, args.forward_addr);
 
     #[cfg(feature = "tor")]
-    if args.use_tor {
+    if args.tor {
         tracing::info!("Bootstraping embedded Tor client...");
         let config = TorClientConfig::default();
         let tor_client = TorClient::create_bootstrapped(config).await?;
