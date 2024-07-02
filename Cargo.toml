@@ -2,12 +2,14 @@
 name = "reverseproxy"
 version = "0.2.0"
 edition = "2021"
-description = "TCP Reverse Proxy written in Rust"
-authors = ["Yuki Kishimoto <yukikishimoto@proton.me>"]
-homepage = "https://github.com/yukibtc/reverseproxy"
-repository = "https://github.com/yukibtc/reverseproxy.git"
+description = "TCP Reverse Proxy"
+authors = ["Yuki Kishimoto <yukikishimoto@protonmail.com>"]
+homepage = "https://github.com/shadowylab/reverseproxy"
+repository = "https://github.com/shadowylab/reverseproxy.git"
 license = "MIT"
 readme = "README.md"
+categories = ["command-line-utilities"]
+keywords = ["networking", "reverseproxy", "proxy"]
 
 [features]
 default = ["tor"]
