@@ -31,7 +31,7 @@ Does NOT support TLS yet!
 * Forward from local address to Tor hidden service (.onion) using embedded Tor client
 
     ```shell
-    reverseproxy 127.0.0.1:8080 torhiddenservice.onion:80 --use-tor
+    reverseproxy 127.0.0.1:8080 torhiddenservice.onion:80 --tor
     ```
 
 To get more info use `reverseproxy --help`
