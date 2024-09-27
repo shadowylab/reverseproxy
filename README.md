@@ -1,4 +1,4 @@
-# TCP Reverse Proxy written in Rust
+# Multi protocol reverse proxy written in Rust
 
 ## Getting started 
 

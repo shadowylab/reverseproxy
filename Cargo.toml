@@ -2,7 +2,7 @@
 name = "reverseproxy"
 version = "0.3.0"
 edition = "2021"
-description = "TCP Reverse Proxy"
+description = "Multi protocol reverse proxy"
 authors = ["Yuki Kishimoto <yukikishimoto@protonmail.com>"]
 homepage = "https://github.com/shadowylab/reverseproxy"
 repository = "https://github.com/shadowylab/reverseproxy.git"
