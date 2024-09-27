@@ -19,7 +19,7 @@ tor = ["dep:arti-client", "dep:tor-rtcompat"]
 arti-client = { version = "0.22", features = ["onion-service-client", "tokio"], optional = true }
 clap = { version = "4.5", features = ["derive"] }
 futures = "0.3"
-tokio = { version = "1.40", features = ["macros", "net", "rt-multi-thread"] }
+tokio = { version = "1.40", features = ["macros", "net", "rt-multi-thread", "sync"] }
 tokio-socks = "0.5"
 tor-rtcompat = { version = "0.22", optional = true }
 

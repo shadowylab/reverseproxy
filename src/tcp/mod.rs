@@ -5,15 +5,15 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 #[cfg(feature = "tor")]
-use arti_client::{DataStream, TorClient};
+use arti_client::DataStream;
 use futures::FutureExt;
 use tokio::io::{self, AsyncRead, AsyncWrite, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
-#[cfg(feature = "tor")]
-use tor_rtcompat::PreferredRuntime;
 
 mod socks;
 
+#[cfg(feature = "tor")]
+use crate::tor;
 use crate::Result;
 
 trait Connection: AsyncRead + AsyncWrite + Unpin + Send {}
@@ -28,7 +28,7 @@ pub struct TcpReverseProxy {
     forward_addr: String,
     socks5_proxy: Option<SocketAddr>,
     #[cfg(feature = "tor")]
-    tor: Option<TorClient<PreferredRuntime>>,
+    tor: bool,
 }
 
 impl TcpReverseProxy {
@@ -38,7 +38,7 @@ impl TcpReverseProxy {
             forward_addr,
             socks5_proxy: None,
             #[cfg(feature = "tor")]
-            tor: None,
+            tor: false,
         }
     }
 
@@ -50,11 +50,9 @@ impl TcpReverseProxy {
     }
 
     #[cfg(feature = "tor")]
-    pub fn tor(self, client: TorClient<PreferredRuntime>) -> Self {
-        Self {
-            tor: Some(client),
-            ..self
-        }
+    pub fn tor(mut self, enable: bool) -> Self {
+        self.tor = enable;
+        self
     }
 
     pub async fn run(self) -> Result<()> {
@@ -83,8 +81,9 @@ impl TcpReverseProxy {
 
     async fn connect(self: Arc<Self>) -> Result<Box<dyn Connection>> {
         #[cfg(feature = "tor")]
-        if let Some(tor) = &self.tor {
-            return Ok(Box::new(tor.connect(self.forward_addr.as_str()).await?));
+        if self.tor {
+            let client = tor::client().await?;
+            return Ok(Box::new(client.connect(self.forward_addr.as_str()).await?));
         }
 
         if let Some(proxy) = self.socks5_proxy {

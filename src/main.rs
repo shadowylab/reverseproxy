@@ -19,9 +19,8 @@ async fn main() -> Result<()> {
     let mut reverse_proxy = TcpReverseProxy::new(args.local_addr, args.forward_addr);
 
     #[cfg(feature = "tor")]
-    if args.tor {
-        let client = tor::init_client().await?;
-        reverse_proxy = reverse_proxy.tor(client);
+    {
+        reverse_proxy = reverse_proxy.tor(args.tor);
     }
 
     reverse_proxy.socks5_proxy(args.socks5_proxy).run().await
