@@ -1,17 +1,14 @@
 // Copyright (c) 2022-2024 Yuki Kishimoto
 // Distributed under the MIT software license
 
-use std::io;
 use std::net::SocketAddr;
-use std::pin::Pin;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
-use std::task::{Context, Poll};
 
 #[cfg(feature = "tor")]
 use arti_client::{DataStream, TorClient};
 use futures::FutureExt;
-use tokio::io::{copy, split, AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf};
+use tokio::io::{self, AsyncRead, AsyncWrite, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 #[cfg(feature = "tor")]
 use tor_rtcompat::PreferredRuntime;
@@ -21,68 +18,12 @@ mod socks;
 use self::socks::TpcSocks5Stream;
 use crate::Result;
 
-enum Connection {
-    TcpStream(TcpStream),
-    #[cfg(feature = "tor")]
-    DataStream(DataStream),
-}
+trait Connection: AsyncRead + AsyncWrite + Unpin + Send {}
 
-impl AsyncRead for Connection {
-    fn poll_read(
-        self: Pin<&mut Self>,
-        cx: &mut Context<'_>,
-        buf: &mut ReadBuf<'_>,
-    ) -> Poll<io::Result<()>> {
-        match self.get_mut() {
-            Self::TcpStream(stream) => AsyncRead::poll_read(Pin::new(stream), cx, buf),
-            #[cfg(feature = "tor")]
-            Self::DataStream(stream) => AsyncRead::poll_read(Pin::new(stream), cx, buf),
-        }
-    }
-}
-
-impl AsyncWrite for Connection {
-    fn poll_write(
-        self: Pin<&mut Self>,
-        cx: &mut Context<'_>,
-        buf: &[u8],
-    ) -> Poll<io::Result<usize>> {
-        match self.get_mut() {
-            Self::TcpStream(stream) => AsyncWrite::poll_write(Pin::new(stream), cx, buf),
-            #[cfg(feature = "tor")]
-            Self::DataStream(stream) => AsyncWrite::poll_write(Pin::new(stream), cx, buf),
-        }
-    }
-
-    fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        match self.get_mut() {
-            Self::TcpStream(stream) => AsyncWrite::poll_flush(Pin::new(stream), cx),
-            #[cfg(feature = "tor")]
-            Self::DataStream(stream) => AsyncWrite::poll_flush(Pin::new(stream), cx),
-        }
-    }
-
-    fn poll_shutdown(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        match self.get_mut() {
-            Self::TcpStream(stream) => AsyncWrite::poll_shutdown(Pin::new(stream), cx),
-            #[cfg(feature = "tor")]
-            Self::DataStream(stream) => AsyncWrite::poll_shutdown(Pin::new(stream), cx),
-        }
-    }
-}
-
-impl From<TcpStream> for Connection {
-    fn from(stream: TcpStream) -> Self {
-        Self::TcpStream(stream)
-    }
-}
+impl Connection for TcpStream {}
 
 #[cfg(feature = "tor")]
-impl From<DataStream> for Connection {
-    fn from(stream: DataStream) -> Self {
-        Self::DataStream(stream)
-    }
-}
+impl Connection for DataStream {}
 
 pub struct TcpReverseProxy {
     local_addr: SocketAddr,
@@ -144,18 +85,20 @@ impl TcpReverseProxy {
         Ok(())
     }
 
-    async fn connect(self: Arc<Self>) -> Result<Connection> {
+    async fn connect(self: Arc<Self>) -> Result<Box<dyn Connection>> {
         #[cfg(feature = "tor")]
         if let Some(tor) = &self.tor {
-            return Ok(tor.connect(self.forward_addr.as_str()).await?.into());
+            return Ok(Box::new(tor.connect(self.forward_addr.as_str()).await?));
         }
 
         if let Some(proxy) = self.socks5_proxy {
-            Ok(TpcSocks5Stream::connect(proxy, self.forward_addr.as_str())
-                .await?
-                .into())
+            Ok(Box::new(
+                TpcSocks5Stream::connect(proxy, self.forward_addr.as_str()).await?,
+            ))
         } else {
-            Ok(TcpStream::connect(self.forward_addr.as_str()).await?.into())
+            Ok(Box::new(
+                TcpStream::connect(self.forward_addr.as_str()).await?,
+            ))
         }
     }
 
@@ -164,20 +107,20 @@ impl TcpReverseProxy {
 
         tracing::debug!("Connecting to {}", self.forward_addr);
 
-        let outbound: Connection = self.connect().await?;
+        let outbound: Box<dyn Connection> = self.connect().await?;
 
         tracing::info!("Connection #{connection_id} established");
 
-        let (mut ri, mut wi) = split(inbound);
-        let (mut ro, mut wo) = split(outbound);
+        let (mut ri, mut wi) = io::split(inbound);
+        let (mut ro, mut wo) = io::split(outbound);
 
         let client_to_server = async {
-            copy(&mut ri, &mut wo).await?;
+            io::copy(&mut ri, &mut wo).await?;
             wo.shutdown().await
         };
 
         let server_to_client = async {
-            copy(&mut ro, &mut wi).await?;
+            io::copy(&mut ro, &mut wi).await?;
             wi.shutdown().await
         };
 
