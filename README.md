@@ -14,8 +14,6 @@ cargo install reverseproxy
 
 ## Usage
 
-Does NOT support TLS yet!
-
 * Forward from local address to Tor hidden service (.onion) using socks5 proxy
 
     ```shell
