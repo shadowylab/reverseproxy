@@ -2,12 +2,13 @@
 // Distributed under the MIT software license
 
 mod config;
-mod tcp;
+mod error;
+mod proxy;
 #[cfg(feature = "tor")]
 mod tor;
 
 use self::config::{Args, Parser};
-use self::tcp::TcpReverseProxy;
+use self::proxy::ReverseProxy;
 
 type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
 
@@ -16,7 +17,7 @@ async fn main() -> Result<()> {
     let args: Args = Args::parse();
 
     #[allow(unused_mut)]
-    let mut reverse_proxy = TcpReverseProxy::new(args.local_addr, args.forward_addr);
+    let mut reverse_proxy = ReverseProxy::new(args.local_addr, args.forward_addr);
 
     #[cfg(feature = "tor")]
     {

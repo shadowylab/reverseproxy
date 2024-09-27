@@ -2345,6 +2345,7 @@ dependencies = [
  "arti-client",
  "clap",
  "futures",
+ "tempfile",
  "tokio",
  "tokio-socks",
  "tor-rtcompat",

@@ -14,22 +14,34 @@ cargo install reverseproxy
 
 ## Usage
 
+* General usage
+
+    ```shell
+    reverseproxy <protocol>://<address> <protocol>://<address>
+    ```
+
 * Forward from local address to Tor hidden service (.onion) using socks5 proxy
 
     ```shell
-    reverseproxy 127.0.0.1:8080 torhiddenservice.onion:80 --socks5-proxy 127.0.0.1:9050
+    reverseproxy tcp://127.0.0.1:8080 tcp://torhiddenservice.onion:80 --socks5-proxy 127.0.0.1:9050
     ```
 
 * Forward from local address to local network address
 
     ```shell
-    reverseproxy 127.0.0.1:8080 othercomputer.local:80 
+    reverseproxy tcp://127.0.0.1:8080 tcp://othercomputer.local:80 
     ```
 
 * Forward from local address to Tor hidden service (.onion) using embedded Tor client
 
     ```shell
-    reverseproxy 127.0.0.1:8080 torhiddenservice.onion:80 --tor
+    reverseproxy tcp://127.0.0.1:8080 tcp://torhiddenservice.onion:80 --tor
+    ```
+
+* Forward from local address to UNIX socket
+
+    ```shell
+    reverseproxy tcp://127.0.0.1:8080 unix:///tmp/temp.sock
     ```
 
 To get more info use `reverseproxy --help`
