@@ -9,13 +9,6 @@ use tokio_socks::IntoTargetAddr;
 
 use crate::Result;
 
-pub struct TpcSocks5Stream;
-
-impl TpcSocks5Stream {
-    pub async fn connect<'a>(
-        proxy: SocketAddr,
-        dest: impl IntoTargetAddr<'a>,
-    ) -> Result<TcpStream> {
-        Ok(Socks5Stream::connect(proxy, dest).await?.into_inner())
-    }
+pub async fn connect<'a>(proxy: SocketAddr, dest: impl IntoTargetAddr<'a>) -> Result<TcpStream> {
+    Ok(Socks5Stream::connect(proxy, dest).await?.into_inner())
 }

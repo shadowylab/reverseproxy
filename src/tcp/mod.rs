@@ -15,7 +15,6 @@ use tor_rtcompat::PreferredRuntime;
 
 mod socks;
 
-use self::socks::TpcSocks5Stream;
 use crate::Result;
 
 trait Connection: AsyncRead + AsyncWrite + Unpin + Send {}
@@ -93,7 +92,7 @@ impl TcpReverseProxy {
 
         if let Some(proxy) = self.socks5_proxy {
             Ok(Box::new(
-                TpcSocks5Stream::connect(proxy, self.forward_addr.as_str()).await?,
+                socks::connect(proxy, self.forward_addr.as_str()).await?,
             ))
         } else {
             Ok(Box::new(
