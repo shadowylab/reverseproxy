@@ -9,10 +9,6 @@ use std::sync::Arc;
 use std::task::{Context, Poll};
 
 #[cfg(feature = "tor")]
-use arti_client::config::BoolOrAuto;
-#[cfg(feature = "tor")]
-use arti_client::StreamPrefs;
-#[cfg(feature = "tor")]
 use arti_client::{DataStream, TorClient};
 use futures::FutureExt;
 use tokio::io::{copy, split, AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf};
@@ -151,13 +147,7 @@ impl TcpReverseProxy {
     async fn connect(self: Arc<Self>) -> Result<Connection> {
         #[cfg(feature = "tor")]
         if let Some(tor) = &self.tor {
-            let mut prefs = StreamPrefs::default();
-            prefs.connect_to_onion_services(BoolOrAuto::Explicit(true));
-
-            return Ok(tor
-                .connect_with_prefs(self.forward_addr.as_str(), &prefs)
-                .await?
-                .into());
+            return Ok(tor.connect(self.forward_addr.as_str()).await?.into());
         }
 
         if let Some(proxy) = self.socks5_proxy {
