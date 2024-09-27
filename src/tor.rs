@@ -13,14 +13,14 @@ pub async fn init_client() -> Result<TorClient<PreferredRuntime>> {
     config.address_filter().allow_onion_addrs(true);
     let config: TorClientConfig = config.build()?;
 
-    tracing::info!("Bootstrapping embedded Tor client...");
+    println!("Bootstrapping tor...");
 
     let client = TorClient::builder()
         .config(config)
         .create_bootstrapped()
         .await?;
 
-    tracing::info!("Tor bootstrap completed!");
+    println!("Tor bootstrap completed!");
 
     Ok(client)
 }

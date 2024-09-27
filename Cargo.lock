@@ -2348,8 +2348,6 @@ dependencies = [
  "tokio",
  "tokio-socks",
  "tor-rtcompat",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]

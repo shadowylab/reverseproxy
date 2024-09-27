@@ -2,21 +2,17 @@
 // Distributed under the MIT software license
 
 mod config;
-mod logger;
 mod tcp;
 #[cfg(feature = "tor")]
 mod tor;
 
 use self::config::{Args, Parser};
-use self::logger::Logger;
 use self::tcp::TcpReverseProxy;
 
 type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    Logger::init();
-
     let args: Args = Args::parse();
 
     #[allow(unused_mut)]
